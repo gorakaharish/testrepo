@@ -1,63 +1,81 @@
-// Alert.tsx
-import React from 'react';
+import React, { useState } from 'react';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Alert, Snackbar } from '@mui/material';
+// import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 interface AlertProps {
-  type: 'success' | 'error' | 'info'; // Type of the alert
-  message: string; // The alert message
   onClose: () => void; // Function to close the alert
 }
 
-const Alert: React.FC<AlertProps> = ({ type, message, onClose }) => {
-  const getAlertStyle = () => {
-    switch (type) {
-      case 'success':
-        return { backgroundColor: 'white', color: 'black', margin: '20px', paddingTop: '40px' };
-      case 'error':
-        return { color: 'black', backgroundColor: 'white', border: '1pxsolid#ccc', margin: '20px', paddingTop: '40px' };
-      case 'info':
-        return { backgroundColor: '#2196F3', color: 'white' };
-      default:
-        return {};
-    }
+const AlertComponent: React.FC<AlertProps> = ({ onClose }) => {
+  const [isPopupVisible, setIsPopupVisible] = useState(true); // Manage popup visibility
+  const [isConfirmed, setIsConfirmed] = useState(false); // Manage confirmation status
+  const [openSnackbar, setOpenSnackbar] = useState(false); // Snackbar visibility
+
+  const handleConfirm = () => {
+    setIsConfirmed(true); // Set confirmed to true when the user clicks Confirm
+    setTimeout(() => {
+      setIsPopupVisible(false);
+      setOpenSnackbar(true); // Show success message
+    }, 500); // Delay to allow the popup to hide before showing the success message
+  };
+
+  const handleCancel = () => {
+    setIsPopupVisible(false); // Close the popup when Cancel is clicked
+    onClose(); // Close the alert when Cancel is clicked
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false); // Close success message
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: '30%',
-        left: '50%',
-        textAlign: 'center',
-        transform: 'translate(-50%, -50%)', // Centering the modal
-        padding: '10px',
-        borderRadius: '10px',
-        height: '150px',
-        zIndex: 1000,
-        maxWidth: '400px', // Optional: set max width
-        width: '150%', // Ensure it doesn't overflow
-        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Optional: add shadow for better UI
-        ...getAlertStyle()
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span>{message}</span>
-        <button
-          onClick={onClose}
-          style={{
-            marginLeft: '10px',
-            backgroundColor: 'blue',
-            color: 'white',
-            border: 'none',
-            padding: '5px 10px',
-            borderRadius: '3px',
-            cursor: 'pointer'
-          }}
+    <>
+      <Dialog open={isPopupVisible} maxWidth="xs"  sx={{
+          '& .MuiDialog-paper': {
+            width: '70%',
+            marginBottom: '17rem'
+          }
+        }}>
+        <DialogTitle>Confirmation</DialogTitle>
+        <DialogContent>
+          <h3>Are you sure you want to proceed?</h3>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancel} color="error" variant="contained">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirm} color="primary" variant="contained">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Success Snackbar Message */}
+      {isConfirmed && !isPopupVisible && (
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          Close
-        </button>
-      </div>
-    </div>
+          <Alert
+            severity="success"
+            variant="filled"
+            // icon={<CheckCircleIcon fontSize="inherit" />}
+            sx={{
+              width: '100%', // Adjust the width to 50%
+              backgroundColor: '#d4edda',
+              color: '#155724',
+              borderRadius: '8px',
+              padding: '10px 20px',
+            }}
+          >
+            This is a success Alert.
+          </Alert>
+        </Snackbar>
+      )}
+    </>
   );
 };
 
-export default Alert;
+export default AlertComponent;
